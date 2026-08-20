@@ -1,6 +1,7 @@
 """Aplicação web enxuta para acompanhar e organizar vagas encontradas."""
 
 import os
+import re
 import secrets
 import time
 from functools import wraps
@@ -15,6 +16,7 @@ from database.database import (
 )
 
 SITUACOES = ("nova", "candidatei", "entrevista", "proposta", "descartada")
+PADRAO_JOB_ID = re.compile(r"[0-9a-f]{32}")
 MAX_TENTATIVAS_LOGIN = 5
 JANELA_TENTATIVAS_LOGIN_SEGUNDOS = 15 * 60
 
@@ -133,6 +135,27 @@ def create_app(config: dict | None = None) -> Flask:
             abort(400)
         definir_situacao(job_id, situacao)
         flash("Situação atualizada.", "sucesso")
+        return redirect(request.referrer or url_for("inicio"))
+
+    @app.post("/vagas/situacao-em-massa")
+    @acesso_exigido
+    def atualizar_situacao_em_massa():
+        if not csrf_valido():
+            abort(400)
+        situacao = request.form.get("situacao", "")
+        if situacao not in SITUACOES:
+            abort(400)
+
+        job_ids = list(dict.fromkeys(request.form.getlist("vaga_id")))
+        if not job_ids:
+            flash("Selecione ao menos uma vaga.", "erro")
+            return redirect(request.referrer or url_for("inicio"))
+        if any(PADRAO_JOB_ID.fullmatch(job_id) is None for job_id in job_ids):
+            abort(400)
+
+        for job_id in job_ids:
+            definir_situacao(job_id, situacao)
+        flash(f"Situação atualizada para {len(job_ids)} vaga(s).", "sucesso")
         return redirect(request.referrer or url_for("inicio"))
 
     return app
