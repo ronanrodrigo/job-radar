@@ -9,7 +9,7 @@
 ![Playwright](https://img.shields.io/badge/Playwright-Scraping-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-Postgres-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Cron-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
-![Tests](https://img.shields.io/badge/testes-358%20passing-success?style=for-the-badge)
+![Tests](https://img.shields.io/badge/testes-363%20passing-success?style=for-the-badge)
 ![Status](https://img.shields.io/badge/status-em%20produção-success?style=for-the-badge)
 
 Fork mantido por [Ronan Rodrigo](https://github.com/ronanrodrigo), a partir do projeto de Liliam Kezia Oliveira Souza.
@@ -29,8 +29,8 @@ O radar mantém vagas em um banco Supabase compartilhado entre o coletor e o pai
 | Achado | Número |
 |---|---|
 | 📊 Vagas migradas para produção | **1.350** |
-| 🧪 Testes automatizados (CI a cada push) | **358** |
-| 🌎 Fontes monitoradas em paralelo | **8** |
+| 🧪 Testes automatizados (CI a cada push) | **363** |
+| 🌎 Fontes monitoradas em paralelo | **9** |
 | ⏱️ Frequência de checagem | **a cada 3h** |
 | 💰 Custo de infraestrutura | **R$ 0** |
 
@@ -73,7 +73,7 @@ Vaga de alta relevância chega na hora, com motivo da aprovação, nível e link
 - **Score de relevância sem ML:** 5 sinais conhecidos (cargo, ferramenta, senioridade, mercado, idioma), pesos calibrados contra o histórico real do banco, não chutados.
 - **Persistência compartilhada:** GitHub Actions como motor de cron e Supabase Postgres como fonte de verdade; SQLite fica para desenvolvimento e migração local.
 - **Resiliente:** nunca marca vaga como "vista" sem confirmar que a notificação saiu; alerta automático se metade das fontes falhar num ciclo; heartbeat diário confirmando que o robô ainda está de pé.
-- **358 testes automatizados em CI:** filtros iOS, painel, SQLite e o contrato HTTP do Supabase são verificados a cada push.
+- **363 testes automatizados em CI:** filtros iOS, painel, SQLite e o contrato HTTP do Supabase são verificados a cada push.
 
 ## 📁 Estrutura do repositório
 

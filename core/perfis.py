@@ -69,6 +69,7 @@ from scrapers.indeed_intl import IndeedIntlScraper
 from scrapers.jobs99 import Jobs99Scraper
 from scrapers.linkedin import LinkedInScraper
 from scrapers.linkedin_intl import LinkedInIntlScraper
+from scrapers.mobilesignal import MobileSignalScraper
 from scrapers.senior import SeniorScraper
 from scrapers.solides import SolidesScraper
 from scrapers.weworkremotely_intl import WeWorkRemotelyIntlScraper
@@ -337,6 +338,7 @@ _SCRAPERS_IOS = [
     DefinicaoScraper(Jobs99Scraper, FREQUENCIA_BAIXA),
     DefinicaoScraper(SeniorScraper, FREQUENCIA_BAIXA),
     DefinicaoScraper(WeWorkRemotelyIntlScraper, FREQUENCIA_ALTA),
+    DefinicaoScraper(MobileSignalScraper, FREQUENCIA_ALTA),
 ]
 
 PERFIL_IOS = Perfil(
