@@ -72,6 +72,7 @@ from scrapers.linkedin_intl import LinkedInIntlScraper
 from scrapers.mobilesignal import MobileSignalScraper
 from scrapers.senior import SeniorScraper
 from scrapers.solides import SolidesScraper
+from scrapers.vanhack import VanHackScraper
 from scrapers.weworkremotely_intl import WeWorkRemotelyIntlScraper
 
 # "alta" roda TODO ciclo; "baixa" roda só na primeira execução de cada dia
@@ -339,6 +340,7 @@ _SCRAPERS_IOS = [
     DefinicaoScraper(SeniorScraper, FREQUENCIA_BAIXA),
     DefinicaoScraper(WeWorkRemotelyIntlScraper, FREQUENCIA_ALTA),
     DefinicaoScraper(MobileSignalScraper, FREQUENCIA_ALTA),
+    DefinicaoScraper(VanHackScraper, FREQUENCIA_ALTA),
 ]
 
 PERFIL_IOS = Perfil(
