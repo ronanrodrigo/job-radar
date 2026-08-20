@@ -23,9 +23,17 @@
 {% with mensagens = get_flashed_messages(with_categories=true) %}{% for categoria, mensagem in mensagens %}<p class="flash {{ categoria }}">{{ mensagem }}</p>{% endfor %}{% endwith %}
 
 <section class="job-list">
-  <div class="list-head"><span>Vaga</span><span>Fonte</span><span>Situação</span></div>
+  <form id="bulk-actions" class="bulk-actions" method="post" action="{{ url_for('atualizar_situacao_em_massa') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <span id="selected-count" aria-live="polite">Nenhuma vaga selecionada</span>
+    <label for="bulk-situacao">Definir como</label>
+    <select id="bulk-situacao" name="situacao">{% for situacao in situacoes %}<option value="{{ situacao }}">{{ situacao }}</option>{% endfor %}</select>
+    <button id="bulk-submit" type="submit" disabled>Atualizar selecionadas</button>
+  </form>
+  <div class="list-head"><span>Selecionar</span><span>Vaga</span><span>Fonte</span><span>Situação</span></div>
   {% for vaga in vagas %}
   <article class="job-card">
+    <label class="select-job"><input class="job-selector" type="checkbox" name="vaga_id" value="{{ vaga.id }}" form="bulk-actions"><span class="sr-only">Selecionar {{ vaga.titulo }}</span></label>
     <div class="job-main"><a href="{{ vaga.link }}" target="_blank" rel="noreferrer">{{ vaga.titulo }}</a><p>{{ vaga.empresa }} · {{ vaga.local }} · {{ vaga.modalidade or 'modalidade não informada' }}</p></div>
     <div class="source"><b>{{ vaga.site }}</b><small>{{ vaga.encontrada_em }}</small></div>
     <form method="post" action="{{ url_for('atualizar_situacao', job_id=vaga.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="situacao" aria-label="Situação de {{ vaga.titulo }}">{% for situacao in situacoes %}<option value="{{ situacao }}" {% if vaga.situacao == situacao %}selected{% endif %}>{{ situacao }}</option>{% endfor %}</select><button type="submit">Salvar</button></form>
@@ -34,4 +42,18 @@
   <div class="empty"><h2>Nenhuma vaga neste recorte.</h2><p>Altere os filtros ou aguarde o próximo ciclo do robô.</p></div>
   {% endfor %}
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const seletores = document.querySelectorAll('.job-selector');
+  const contador = document.getElementById('selected-count');
+  const botao = document.getElementById('bulk-submit');
+  function atualizarSelecao() {
+    const quantidade = [...seletores].filter((seletor) => seletor.checked).length;
+    contador.textContent = quantidade ? `${quantidade} vaga(s) selecionada(s)` : 'Nenhuma vaga selecionada';
+    botao.disabled = quantidade === 0;
+  }
+  seletores.forEach((seletor) => seletor.addEventListener('change', atualizarSelecao));
+</script>
 {% endblock %}

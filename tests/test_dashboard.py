@@ -37,6 +37,70 @@ def test_inicio_exibe_vaga_e_permite_atualizar_situacao(monkeypatch, tmp_path):
     assert database.listar_vagas()[0]["situacao"] == "candidatei"
 
 
+def test_inicio_permite_atualizar_varias_vagas(monkeypatch, tmp_path):
+    monkeypatch.setattr(database, "DB_PATH", str(tmp_path / "jobs.db"))
+    database.iniciar_db()
+    primeira = _salvar_exemplo()
+    segunda = Job(
+        titulo="iOS Engineer", empresa="Beta", local="Remoto",
+        link="https://exemplo.com/ios-2", site="MobileSignal", modalidade="Remoto",
+    )
+    database.salvar_vaga(segunda, perfil_chave="ios")
+    app = create_app({"TESTING": True, "SECRET_KEY": "teste", "DASHBOARD_PASSWORD": ""})
+    cliente = app.test_client()
+
+    resposta = cliente.get("/")
+    assert b"bulk-actions" in resposta.data
+    with cliente.session_transaction() as sessao:
+        token = sessao["csrf_token"]
+    resposta = cliente.post(
+        "/vagas/situacao-em-massa",
+        data={"situacao": "candidatei", "vaga_id": [primeira.id, segunda.id], "csrf_token": token},
+        follow_redirects=True,
+    )
+
+    assert resposta.status_code == 200
+    assert "Situação atualizada para 2 vaga(s)." in resposta.get_data(as_text=True)
+    assert {vaga["situacao"] for vaga in database.listar_vagas()} == {"candidatei"}
+
+
+def test_atualizacao_em_massa_sem_selecao_nao_altera_vagas(monkeypatch, tmp_path):
+    monkeypatch.setattr(database, "DB_PATH", str(tmp_path / "jobs.db"))
+    database.iniciar_db()
+    _salvar_exemplo()
+    app = create_app({"TESTING": True, "SECRET_KEY": "teste", "DASHBOARD_PASSWORD": ""})
+    cliente = app.test_client()
+    cliente.get("/")
+    with cliente.session_transaction() as sessao:
+        token = sessao["csrf_token"]
+
+    resposta = cliente.post(
+        "/vagas/situacao-em-massa",
+        data={"situacao": "candidatei", "csrf_token": token},
+        follow_redirects=True,
+    )
+
+    assert "Selecione ao menos uma vaga." in resposta.get_data(as_text=True)
+    assert database.listar_vagas()[0]["situacao"] == "nova"
+
+
+def test_atualizacao_em_massa_rejeita_id_invalido(monkeypatch, tmp_path):
+    monkeypatch.setattr(database, "DB_PATH", str(tmp_path / "jobs.db"))
+    database.iniciar_db()
+    app = create_app({"TESTING": True, "SECRET_KEY": "teste", "DASHBOARD_PASSWORD": ""})
+    cliente = app.test_client()
+    cliente.get("/")
+    with cliente.session_transaction() as sessao:
+        token = sessao["csrf_token"]
+
+    resposta = cliente.post(
+        "/vagas/situacao-em-massa",
+        data={"situacao": "candidatei", "vaga_id": "id-invalido", "csrf_token": token},
+    )
+
+    assert resposta.status_code == 400
+
+
 def test_login_e_obrigatorio_quando_senha_foi_configurada(monkeypatch, tmp_path):
     monkeypatch.setattr(database, "DB_PATH", str(tmp_path / "jobs.db"))
     database.iniciar_db()
