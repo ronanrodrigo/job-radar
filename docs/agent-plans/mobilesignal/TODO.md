@@ -2,4 +2,4 @@
 
 - [x] [Integrar o scraper MobileSignal](plan-mobilesignal.md#implementação)
 - [x] [Validar a integração](plan-mobilesignal.md#validação)
-- [ ] [Publicar e acompanhar o PR](plan-mobilesignal.md#publicação)
+- [x] [Publicar e acompanhar o PR](plan-mobilesignal.md#publicação)

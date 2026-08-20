@@ -20,4 +20,5 @@ Adicionar `mobilesignal.io/latest-jobs` às fontes do perfil iOS. A fonte lista 
 ## Estado
 
 Scraper implementado e validado localmente contra a página pública: 20 cards
-foram extraídos. A suíte local passou com 363 testes; aguardando PR e CI.
+foram extraídos. A suíte local passou com 363 testes e o CI do PR passou;
+aguardando merge.
