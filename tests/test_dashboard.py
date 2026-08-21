@@ -37,6 +37,27 @@ def test_inicio_exibe_vaga_e_permite_atualizar_situacao(monkeypatch, tmp_path):
     assert database.listar_vagas()[0]["situacao"] == "candidatei"
 
 
+def test_atualizacao_de_situacao_pode_retornar_json_para_autosave(monkeypatch, tmp_path):
+    monkeypatch.setattr(database, "DB_PATH", str(tmp_path / "jobs.db"))
+    database.iniciar_db()
+    vaga = _salvar_exemplo()
+    app = create_app({"TESTING": True, "SECRET_KEY": "teste", "DASHBOARD_PASSWORD": ""})
+    cliente = app.test_client()
+    cliente.get("/")
+    with cliente.session_transaction() as sessao:
+        token = sessao["csrf_token"]
+
+    resposta = cliente.post(
+        f"/vagas/{vaga.id}/situacao",
+        data={"situacao": "entrevista", "csrf_token": token},
+        headers={"Accept": "application/json", "X-Requested-With": "XMLHttpRequest"},
+    )
+
+    assert resposta.status_code == 200
+    assert resposta.get_json() == {"ok": True, "situacao": "entrevista"}
+    assert database.listar_vagas()[0]["situacao"] == "entrevista"
+
+
 def test_inicio_permite_atualizar_varias_vagas(monkeypatch, tmp_path):
     monkeypatch.setattr(database, "DB_PATH", str(tmp_path / "jobs.db"))
     database.iniciar_db()

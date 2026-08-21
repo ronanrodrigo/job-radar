@@ -6,7 +6,7 @@ import secrets
 import time
 from functools import wraps
 
-from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
+from flask import Flask, abort, flash, jsonify, redirect, render_template, request, session, url_for
 
 from database.database import (
     definir_situacao,
@@ -134,6 +134,8 @@ def create_app(config: dict | None = None) -> Flask:
         if situacao not in SITUACOES:
             abort(400)
         definir_situacao(job_id, situacao)
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.accept_mimetypes.best == "application/json":
+            return jsonify(ok=True, situacao=situacao)
         flash("Situação atualizada.", "sucesso")
         return redirect(request.referrer or url_for("inicio"))
 

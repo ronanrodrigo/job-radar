@@ -36,7 +36,7 @@
     <label class="select-job"><input class="job-selector" type="checkbox" name="vaga_id" value="{{ vaga.id }}" form="bulk-actions"><span class="sr-only">Selecionar {{ vaga.titulo }}</span></label>
     <div class="job-main"><a href="{{ vaga.link }}" target="_blank" rel="noreferrer">{{ vaga.titulo }}</a><p>{{ vaga.empresa }} · {{ vaga.local }} · {{ vaga.modalidade or 'modalidade não informada' }}</p></div>
     <div class="source"><b>{{ vaga.site }}</b><small>{{ vaga.encontrada_em }}</small></div>
-    <form method="post" action="{{ url_for('atualizar_situacao', job_id=vaga.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="situacao" aria-label="Situação de {{ vaga.titulo }}">{% for situacao in situacoes %}<option value="{{ situacao }}" {% if vaga.situacao == situacao %}selected{% endif %}>{{ situacao }}</option>{% endfor %}</select><button type="submit">Salvar</button></form>
+    <form class="situation-form" method="post" action="{{ url_for('atualizar_situacao', job_id=vaga.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><select name="situacao" aria-label="Situação de {{ vaga.titulo }}">{% for situacao in situacoes %}<option value="{{ situacao }}" {% if vaga.situacao == situacao %}selected{% endif %}>{{ situacao }}</option>{% endfor %}</select><span class="save-state" role="status" aria-live="polite"></span><button type="submit">Salvar</button></form>
   </article>
   {% else %}
   <div class="empty"><h2>Nenhuma vaga neste recorte.</h2><p>Altere os filtros ou aguarde o próximo ciclo do robô.</p></div>
@@ -55,5 +55,35 @@
     botao.disabled = quantidade === 0;
   }
   seletores.forEach((seletor) => seletor.addEventListener('change', atualizarSelecao));
+
+  document.querySelectorAll('.situation-form').forEach((form) => {
+    const select = form.querySelector('select[name="situacao"]');
+    const state = form.querySelector('.save-state');
+    let savedValue = select.value;
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const nextValue = select.value;
+      if (nextValue === savedValue) return;
+      const payload = new URLSearchParams(new FormData(form));
+      select.disabled = true;
+      state.className = 'save-state is-saving';
+      state.textContent = 'Salvando…';
+      try {
+        const response = await fetch(form.action, { method: 'POST', body: payload, headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }, credentials: 'same-origin' });
+        if (!response.ok) throw new Error('Falha ao salvar');
+        savedValue = nextValue;
+        state.className = 'save-state is-saved';
+        state.textContent = 'Salvo';
+        window.setTimeout(() => { state.textContent = ''; state.className = 'save-state'; }, 1800);
+      } catch (error) {
+        select.value = savedValue;
+        state.className = 'save-state is-error';
+        state.textContent = 'Erro ao salvar';
+      } finally {
+        select.disabled = false;
+      }
+    });
+    select.addEventListener('change', () => form.requestSubmit());
+  });
 </script>
 {% endblock %}
