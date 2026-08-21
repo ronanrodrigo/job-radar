@@ -25,6 +25,7 @@ def test_inicio_exibe_vaga_e_permite_atualizar_situacao(monkeypatch, tmp_path):
     resposta = cliente.get("/")
     assert resposta.status_code == 200
     assert b"iOS Developer" in resposta.data
+    assert b">Salvar</button>" not in resposta.data
 
     with cliente.session_transaction() as sessao:
         token = sessao["csrf_token"]
