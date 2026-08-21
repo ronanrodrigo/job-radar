@@ -1,4 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap');
+.job-card form { grid-template-columns:1fr auto auto; }
+.save-state { min-width:58px; color:var(--muted); font:500 10px 'DM Mono'; }
+.save-state.is-saving::before { content:''; display:inline-block; width:10px; height:10px; margin-right:5px; border:2px solid var(--line); border-top-color:var(--pulse); border-radius:50%; vertical-align:-2px; animation:save-spin .7s linear infinite; }
+.save-state.is-saved { color:#347447; }
+.save-state.is-error { color:var(--signal); }
+@keyframes save-spin { to { transform:rotate(360deg); } }
 
 .job-list .bulk-actions { display:flex; align-items:center; gap:8px; margin:26px 0 0; padding:10px 12px; border:1px solid var(--ink); background:#fff; }
 .job-list .bulk-actions span { margin-right:auto; font:500 11px 'DM Mono'; letter-spacing:.04em; }
